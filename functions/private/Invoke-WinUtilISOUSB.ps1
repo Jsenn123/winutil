@@ -1,14 +1,15 @@
 function Invoke-WinUtilISORefreshUSBDrives {
+    $msg = $sync.configs.messages
     $combo    = $sync["WPFWin11ISOUSBDriveComboBox"]
     $removable = @(Get-Disk | Where-Object { $_.BusType -eq "USB" } | Sort-Object Number)
 
     $combo.Items.Clear()
 
     if ($removable.Count -eq 0) {
-        $combo.Items.Add("No USB drives detected.")
+        $combo.Items.Add($msg.isoNoUsbDrives)
         $combo.SelectedIndex = 0
         $sync["Win11ISOUSBDisks"] = @()
-        Write-Win11ISOLog "No USB drives detected."
+        Write-Win11ISOLog $msg.isoNoUsbDrives
         return
     }
 
@@ -17,16 +18,17 @@ function Invoke-WinUtilISORefreshUSBDrives {
         $combo.Items.Add("Disk $($disk.Number): $($disk.FriendlyName)  [$sizeGB GB] - $($disk.PartitionStyle)")
     }
     $combo.SelectedIndex = 0
-    Write-Win11ISOLog "Found $($removable.Count) USB drive(s)."
+    Write-Win11ISOLog "$($msg.isoLogFoundUsb) $($removable.Count) $($msg.isoLogUsbDrive)"
     $sync["Win11ISOUSBDisks"] = $removable
 }
 
 function Invoke-WinUtilISOWriteUSB {
+    $msg = $sync.configs.messages
     $contentsDir = $sync["Win11ISOContentsDir"]
     $usbDisks    = $sync["Win11ISOUSBDisks"]
 
     if (-not $contentsDir -or -not (Test-Path $contentsDir)) {
-        [System.Windows.MessageBox]::Show("No modified ISO content found. Please complete Steps 1-3 first.", "Not Ready", "OK", "Warning")
+        [System.Windows.MessageBox]::Show($msg.isoNoModifiedContent, $msg.isoNotReady, "OK", "Warning")
         return
     }
 
@@ -44,7 +46,7 @@ function Invoke-WinUtilISOWriteUSB {
     }
 
     if (-not $targetDisk) {
-        [System.Windows.MessageBox]::Show("Please select a USB drive from the dropdown.", "No Drive Selected", "OK", "Warning")
+        [System.Windows.MessageBox]::Show($msg.isoSelectUsbDrive, $msg.isoNoDriveSelected, "OK", "Warning")
         return
     }
 
@@ -52,11 +54,11 @@ function Invoke-WinUtilISOWriteUSB {
     $sizeGB     = [math]::Round($targetDisk.Size / 1GB, 1)
 
     $confirm = [System.Windows.MessageBox]::Show(
-        "ALL data on Disk $diskNum ($($targetDisk.FriendlyName), $sizeGB GB) will be PERMANENTLY ERASED.`n`nAre you sure you want to continue?",
-        "Confirm USB Erase", "YesNo", "Warning")
+        "$($msg.isoUsbEraseConfirm) $diskNum ($($targetDisk.FriendlyName), $sizeGB GB) $($msg.isoUsbEraseConfirm)...`n`n$($msg.isoCleanResetPrompt)",
+        $msg.isoUsbEraseTitle, "YesNo", "Warning")
 
     if ($confirm -ne "Yes") {
-        Write-Win11ISOLog "USB write cancelled by user."
+        Write-Win11ISOLog $msg.isoUsbWriteCancelled
         return
     }
 

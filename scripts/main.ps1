@@ -17,7 +17,7 @@ CCC::::::::::::C         T:::::::::T            T:::::::::T
   CCCCCCCCCCCCC          TTTTTTTTTTT            TTTTTTTTTTT
 
 ====Chris Titus Tech=====
-=====Windows Toolbox=====
+=====Windows 工具箱=====
 "@
 
 # Create enums
