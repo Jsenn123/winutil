@@ -2,6 +2,7 @@
 
 > 基于 ChrisTitusTech/winutil commit `6ae24d0` 的简体中文汉化版本  
 > 发布日期: 2026-06-24
+> 版本：Release 26.06.23
 
 ---
 
